@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Volant Foundry</title>
+    
+    <!-- Preconnect for faster redirect -->
+    <link rel="preconnect" href="https://volantpoetry.vercel.app" />
+    <link rel="dns-prefetch" href="https://volantpoetry.vercel.app" />
+    
+    <!-- SEO - tell search engines the canonical URL -->
+    <link rel="canonical" href="https://volantpoetry.vercel.app/volant_foundry/" />
+    <meta property="og:url" content="https://volantpoetry.vercel.app/volant_foundry/" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Volant Foundry" />
+    <meta property="og:description" content="Volant Foundry is a creative technology platform building digital spaces for writers, readers, and creators." />
+    <meta property="og:image" content="https://volantpoetry.vercel.app/images/volant-foundry-og.jpg" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Volant Foundry" />
+    <meta name="twitter:description" content="Volant Foundry - building digital spaces for writers, readers, and creators." />
+    <meta name="twitter:image" content="https://volantpoetry.vercel.app/images/volant-foundry-og.jpg" />
+    
+    <!-- Meta refresh fallback (0 seconds = instant) -->
+    <meta http-equiv="refresh" content="0;url=https://volantpoetry.vercel.app/volant_foundry/" />
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+            padding: 3rem 1rem;
+            margin: 0;
+            background: #faf9fe;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .redirect-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #ede7df;
+            border-top: 4px solid #B8860B;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.8rem;
+            color: #1a1a2e;
+            margin: 0 0 0.5rem;
+        }
+        h1 span { color: #B8860B; }
+        p {
+            color: #6f6252;
+            font-size: 1rem;
+            margin: 0 0 0.25rem;
+            line-height: 1.5;
+        }
+        .subtitle { color: #8a7b6a; font-size: 0.9rem; }
+        a { color: #4b2aad; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .logo-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.4rem; }
+            p { font-size: 0.9rem; }
+            .spinner { width: 36px; height: 36px; border-width: 3px; }
+        }
+    </style>
+    
+    <script>
+        // Instant redirect - no delay
+        (function() {
+            window.location.replace('https://volantpoetry.vercel.app/volant_foundry/');
+        })();
+    </script>
+</head>
+<body>
+    <div class="redirect-container">
+        <span class="logo-icon">🏛️</span>
+        <div class="spinner"></div>
+        <h1>Volant <span>Foundry</span></h1>
+        <p>Redirecting you tO platform...</p>
+        <p class="subtitle">If you are not redirected automatically, <a href="https://volantpoetry.vercel.app/volant_foundry/">click here</a>.</p>
+    </div>
+</body>
+</html>

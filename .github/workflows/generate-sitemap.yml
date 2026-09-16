@@ -1,0 +1,76 @@
+name: Generate Sitemap
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '**/*.html'
+      - '.github/scripts/generate-sitemap.js'
+      - 'package.json'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sitemap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🗺️ Generate sitemap
+        run: node .github/scripts/generate-sitemap.js
+
+      - name: ✅ Verify sitemap
+        run: |
+          if [ ! -f sitemap.xml ]; then
+            echo "❌ sitemap.xml not generated!"
+            exit 1
+          fi
+
+          if [ ! -f robots.txt ]; then
+            echo "⚠️ robots.txt not generated"
+          else
+            echo "✅ robots.txt generated"
+          fi
+
+          URL_COUNT=$(grep -c "<loc>" sitemap.xml || echo "0")
+          echo "📊 Total URLs: $URL_COUNT"
+
+          EXTERNAL_COUNT=$(grep -c "volantpoetry.vercel.app" sitemap.xml || echo "0")
+          if [ "$EXTERNAL_COUNT" -gt 0 ]; then
+            echo "❌ Found $EXTERNAL_COUNT cross-domain URLs!"
+            exit 1
+          fi
+          echo "✅ No cross-domain URLs"
+
+      - name: 📤 Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add sitemap.xml robots.txt
+
+          if git diff --staged --quiet; then
+            echo "📝 No changes to commit"
+          else
+            git commit -m "🤖 Auto-update sitemap and robots.txt [skip ci]"
+            git push
+            echo "✅ Changes pushed successfully"
+          fi
+
+      - name: 📊 Summary
+        run: |
+          echo "✅ Sitemap: https://volantfoundry.vercel.app/sitemap.xml"
+          echo "✅ Robots:  https://volantfoundry.vercel.app/robots.txt"

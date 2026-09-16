@@ -1,0 +1,17 @@
+# Robots.txt for Volant Foundry
+User-agent: *
+Allow: /
+
+# Block non-HTML files
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*.json$
+Disallow: /*.xml$
+
+# Block node_modules
+Disallow: /node_modules/
+
+# Block images
+Disallow: /images/
+
+Sitemap: https://volantfoundry.vercel.app/sitemap.xml

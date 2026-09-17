@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illustration Studio — Volant</title>
+<meta name="description" content="Give a poem, get a storybook illustration to download.">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('volant_dark_mode');
+      if (t === '1' || t === 'dark') { document.documentElement.classList.add('dark'); }
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f6f3ed;
+    --bg-2: #efe9de;
+    --card: #ffffff;
+    --ink: #3b332b;
+    --muted: #7c6f5f;
+    --line: #e4dccd;
+    --accent: #b76e4b;
+    --accent-2: #8a5942;
+    --gold: #c9a96a;
+    --success: #2f7d46;
+    --err: #b3423a;
+    --radius: 18px;
+    --shadow: 0 10px 30px rgba(59, 51, 43, 0.10);
+  }
+  html.dark {
+    --bg: #191613;
+    --bg-2: #221e1a;
+    --card: #2a241f;
+    --ink: #f0e9de;
+    --muted: #a69582;
+    --line: #3d352d;
+    --accent: #d98a5f;
+    --accent-2: #e8a87b;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.40);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.65;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 5vw;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .brand {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .theme-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .wrap {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.2rem 5vw 4rem;
+  }
+  .hero {
+    text-align: center;
+    margin-bottom: 2.2rem;
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.4rem;
+  }
+  .hero p { color: var(--muted); font-size: 1.02rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.6rem;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.7rem;
+  }
+  .panel h2 {
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.7rem;
+    margin-bottom: 1.1rem;
+  }
+  label.field {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 0.98rem;
+  }
+  textarea#poem {
+    width: 100%;
+    min-height: 240px;
+    resize: vertical;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--ink);
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    padding: 1rem;
+    outline: none;
+  }
+  textarea#poem:focus { border-color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 0.9rem 0 1.2rem; }
+  .chip {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s ease;
+  }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 999px;
+    padding: 0.75rem 1.7rem;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 6px 16px rgba(183, 110, 75, 0.35); }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .btn-ghost { background: var(--bg); border: 1px solid var(--line); color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--accent); }
+  .status { margin-top: 1rem; font-size: 0.92rem; color: var(--muted); min-height: 1.4em; }
+  .status.err { color: var(--err); }
+  .status.ok { color: var(--success); }
+  #canvasBox {
+    min-height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-2);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  #canvasBox img { max-width: 100%; max-height: 460px; border-radius: 10px; display: block; }
+  #canvasBox .empty { color: var(--muted); text-align: center; padding: 2rem; }
+  #canvasBox .empty i { font-size: 2.6rem; opacity: 0.5; margin-bottom: 0.6rem; display: block; }
+  .actions { display: flex; gap: 0.7rem; margin-top: 1.1rem; flex-wrap: wrap; }
+  .hint { color: var(--muted); font-size: 0.85rem; margin-top: 0.9rem; }
+  footer {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    padding: 1.1rem 5vw;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.7rem; }
+    textarea#poem { min-height: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Illustration Studio</div>
+  <button class="theme-btn" id="themeBtn" title="Toggle dark mode">◐ Theme</button>
+</div>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>From a poem to a picture</h1>
+    <p>Paste a poem, choose a mood, and download a storybook illustration inspired by your words.</p>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Your poem</h2>
+      <label class="field" for="poem">Paste or write your poem</label>
+      <textarea id="poem" placeholder="Whispers of the evening breeze, / gold on broken hilltops…"></textarea>
+
+      <label class="field" style="margin-top:0.4rem;">Illustration style</label>
+      <div class="chips" id="styleChips">
+        <button class="chip on" data-style="soft watercolor, storybook, warm light">Watercolor</button>
+        <button class="chip" data-style="ink line art, minimal, monochrome">Ink sketch</button>
+        <button class="chip" data-style="dreamy oil painting, renaissance mood">Oil painting</button>
+        <button class="chip" data-style="vivid painterly, magical realism">Magical</button>
+        <button class="chip" data-style="gothic charcoal, dramatic shadows">Gothic</button>
+        <button class="chip" data-style="bright impressionist, sunlight">Impressionist</button>
+      </div>
+
+      <button class="btn btn-primary" id="generateBtn">✦ Create illustration</button>
+      <div class="status" id="genStatus"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Your illustration</h2>
+      <div id="canvasBox">
+        <div class="empty">
+          <i>🖼</i>
+          <div>Your illustration will appear here.<br>No account needed — it just works.</div>
+        </div>
+      </div>
+      <div class="actions" id="downloadRow" style="display:none;">
+        <button class="btn btn-ghost" id="downloadBtn">⬇ Download image (PNG)</button>
+        <button class="btn btn-ghost" id="newBtn">✦ Another take</button>
+      </div>
+      <p class="hint" id="engineHint">Engines: your local Stable Diffusion (auto-detected on this PC) → free cloud diffusion (Pollinations, Stable Diffusion).</p>
+    </section>
+  </div>
+</main>
+
+<footer>Volant Foundry · Illustration Studio — your poem, our canvas.</footer>
+
+<script>
+(function () {
+  var themeBtn = document.getElementById('themeBtn');
+  themeBtn.addEventListener('click', function () {
+    var html = document.documentElement;
+    var dark = html.classList.toggle('dark');
+    try { localStorage.setItem('volant_dark_mode', dark ? 'dark' : 'light'); } catch (e) {}
+  });
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll('#styleChips .chip'));
+  var activeStyle = 'soft watercolor, storybook, warm light';
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      chips.forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      activeStyle = c.getAttribute('data-style');
+    });
+  });
+
+  var generateBtn = document.getElementById('generateBtn');
+  var poemEl = document.getElementById('poem');
+  var statusEl = document.getElementById('genStatus');
+  var canvasBox = document.getElementById('canvasBox');
+  var downloadRow = document.getElementById('downloadRow');
+  var downloadBtn = document.getElementById('downloadBtn');
+  var engineHint = document.getElementById('engineHint');
+  var currentUrl = '';
+
+  function setStatus(msg, kind) {
+    statusEl.textContent = msg || '';
+    statusEl.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  generateBtn.addEventListener('click', generate);
+
+// Try the user's OWN PC first: Stable Diffusion WebUI/Forge on
+// http://127.0.0.1:7860. Works on this machine only; falls through to
+// the cloud otherwise.
+async function tryLocalEngine(poem, style) {
+  var sdUrl = 'http://127.0.0.1:7860/sdapi/v1/txt2img';
+  var promptText = style + '. A dreamy illustration inspired by this poem: ' + poem;
+  var controller = new AbortController();
+  var timer = setTimeout(function () { controller.abort(); }, 5000);
+  try {
+    var r = await fetch(sdUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: promptText + ', high quality, detailed',
+        negative_prompt: 'text, words, letters, watermark, signature, lowres, blurry',
+        width: 768,
+        height: 768,
+        steps: 30,
+        cfg_scale: 7,
+        sampler_name: 'DPM++ 2M Karras',
+        seed: -1
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!r.ok) return null;
+    var d = await r.json();
+    if (!d.images || !d.images[0]) return null;
+    return { url: 'data:image/png;base64,' + d.images[0], provider: 'local' };
+  } catch (err) {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+// Cloud fallback: keyless Pollinations (Stable Diffusion), called directly
+// from the browser. No server/serverless function needed, so this page is
+// fully self-contained and works from any static host.
+function fetchCloud(poem, style) {
+  var cleanStyle = (style && style.trim()) ? style.trim() : 'soft watercolor, storybook, warm light, no text';
+  var prompt = 'A beautiful, dreamy illustration inspired by this poem:\n\n"""\n' +
+    poem.slice(0, 1500) +
+    '\n"""\n\nStyle: ' + cleanStyle + '. No text, no letters, no words anywhere in the image.';
+  var url = 'https://image.pollinations.ai/prompt/' +
+    encodeURIComponent(prompt + ', high detail') +
+    '?width=1024&height=1024&nologo=true&seed=' + Math.floor(Math.random() * 100000);
+  return { success: true, url: url, provider: 'pollinations' };
+}
+
+async function generate() {
+  var poem = poemEl.value.trim();
+  if (!poem) {
+    setStatus('✍️ Please paste a poem first.', 'err');
+    poemEl.focus();
+    return;
+  }
+
+  generateBtn.disabled = true;
+  generateBtn.textContent = '✦ Painting your poem…';
+  setStatus('Working…');
+
+  try {
+    setStatus('Looking for your local engine…');
+    var result = await tryLocalEngine(poem, activeStyle);
+    if (!result) {
+      result = await fetchCloud(poem, activeStyle);
+    }
+
+    currentUrl = result.url;
+    canvasBox.innerHTML = '<img src="' + result.url + '" alt="Your illustration">';
+    downloadRow.style.display = 'flex';
+
+    if (result.provider === 'local') {
+      engineHint.textContent = 'Generated on YOUR local Stable Diffusion (own GPU, free). Run WebUI/Forge with --api and --cors-allow-origins=https://' + (location.hostname || 'your domain') + ' to keep using it.';
+      setStatus('✅ Done. (local engine)', 'ok');
+    } else {
+      engineHint.textContent = 'Cloud diffusion (Pollinations, Stable Diffusion) — can take a few extra seconds. Turn on your local SD for instant free results.';
+      setStatus('✅ Done. (cloud diffusion)', 'ok');
+    }
+  } catch (err) {
+    setStatus('❌ ' + err.message, 'err');
+  } finally {
+    generateBtn.disabled = false;
+    generateBtn.textContent = '✦ Create illustration';
+  }
+}
+
+  downloadBtn.addEventListener('click', async function () {
+    if (!currentUrl) return;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Preparing…';
+    try {
+      var response = await fetch(currentUrl, { mode: 'cors' });
+      if (!response.ok) throw new Error('Could not fetch image (' + response.status + ')');
+      var blob = await response.blob();
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'volant-illustration.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    } catch (err) {
+      window.open(currentUrl, '_blank');
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = '⬇ Download image (PNG)';
+    }
+  });
+
+  document.getElementById('newBtn').addEventListener('click', generate);
+})();
+</script>
+</body>
+</html>

@@ -218,7 +218,7 @@
 <main class="wrap">
   <div class="hero">
     <h1>From a poem to a picture</h1>
-    <p>Paste a poem, choose a mood, and download a storybook illustration inspired by your words.</p>
+    <p>Paste your poem and get a professional illustration drawn straight from its exact words, imagery and mood.</p>
   </div>
 
   <div class="grid">
@@ -229,13 +229,14 @@
 
       <label class="field" style="margin-top:0.4rem;">Illustration style</label>
       <div class="chips" id="styleChips">
-        <button class="chip on" data-style="soft watercolor, storybook, warm light">Watercolor</button>
+        <button class="chip on" data-style="professional poetry book illustration, fine ink and graphite linework, detailed engraving, limited duotone palette">Pro illustration</button>
+        <button class="chip" data-style="classic poetry book illustration, fine pencil drawing, graphite cross-hatching, vintage frontispiece, elegant hand-drawn linework, monochrome, textured paper">Pencil book</button>
         <button class="chip" data-style="ink line art, minimal, monochrome">Ink sketch</button>
+        <button class="chip" data-style="gothic charcoal, dramatic shadows">Gothic</button>
+        <button class="chip" data-style="soft watercolor, storybook, warm light">Watercolor</button>
         <button class="chip" data-style="dreamy oil painting, renaissance mood">Oil painting</button>
         <button class="chip" data-style="vivid painterly, magical realism">Magical</button>
-        <button class="chip" data-style="gothic charcoal, dramatic shadows">Gothic</button>
         <button class="chip" data-style="bright impressionist, sunlight">Impressionist</button>
-        <button class="chip" data-style="classic poetry book illustration, fine pencil drawing, graphite cross-hatching, vintage frontispiece, elegant hand-drawn linework, monochrome, textured paper">Pencil book</button>
       </div>
 
       <button class="btn btn-primary" id="generateBtn">✦ Create illustration</button>
@@ -271,7 +272,7 @@
   });
 
   var chips = Array.prototype.slice.call(document.querySelectorAll('#styleChips .chip'));
-  var activeStyle = 'soft watercolor, storybook, warm light';
+  var activeStyle = 'professional poetry book illustration, fine ink and graphite linework, detailed engraving, limited duotone palette';
   chips.forEach(function (c) {
     c.addEventListener('click', function () {
       chips.forEach(function (x) { x.classList.remove('on'); });
@@ -373,7 +374,7 @@
 // the cloud otherwise.
 async function tryLocalEngine(poem, style) {
   var sdUrl = 'http://127.0.0.1:7860/sdapi/v1/txt2img';
-  var promptText = style + '. A dreamy illustration inspired by this poem: ' + poem;
+  var promptText = 'A professional editorial illustration that faithfully depicts the exact content of this poem — the precise subjects, characters, setting, actions and emotional tone it describes, with no unrelated elements. POEM: ' + poem + '. Style: ' + style + '.';
   var controller = new AbortController();
   var timer = setTimeout(function () { controller.abort(); }, 5000);
   try {
@@ -407,10 +408,12 @@ async function tryLocalEngine(poem, style) {
 // from the browser. No server/serverless function needed, so this page is
 // fully self-contained and works from any static host.
 function fetchCloud(poem, style) {
-  var cleanStyle = (style && style.trim()) ? style.trim() : 'soft watercolor, storybook, warm light, no text';
-  var prompt = 'A beautiful, dreamy illustration inspired by this poem:\n\n"""\n' +
-    poem.slice(0, 1500) +
-    '\n"""\n\nStyle: ' + cleanStyle + '. No text, no letters, no words anywhere in the image.';
+  var cleanStyle = (style && style.trim()) ? style.trim() : 'professional poetry book illustration, fine ink and graphite linework';
+  var prompt = 'A professional editorial illustration that faithfully depicts the exact content of the poem below. ' +
+    'Show precisely the subjects, characters, setting, actions and emotional tone the poem describes — stay true to it and do not add unrelated elements. ' +
+    'Publication-quality, cohesive single illustration.\n\n' +
+    'POEM:\n"""\n' + poem.slice(0, 1500) + '\n"""\n\n' +
+    'Style: ' + cleanStyle + '. No text, no letters, no words, no captions anywhere in the image.';
   var url = 'https://image.pollinations.ai/prompt/' +
     encodeURIComponent(prompt + ', high detail') +
     '?width=1024&height=1024&nologo=true&seed=' + Math.floor(Math.random() * 100000);
@@ -430,7 +433,7 @@ async function generate() {
   }
 
   generateBtn.disabled = true;
-  generateBtn.textContent = '✦ Painting your poem…';
+  generateBtn.textContent = '✦ Illustrating your poem…';
   setStatus('Working…');
   downloadRow.style.display = 'none';
 

@@ -186,6 +186,11 @@
   #canvasBox img { max-width: 100%; max-height: 460px; border-radius: 10px; display: block; }
   #canvasBox .empty { color: var(--muted); text-align: center; padding: 2rem; }
   #canvasBox .empty i { font-size: 2.6rem; opacity: 0.5; margin-bottom: 0.6rem; display: block; }
+  #canvasBox .gen-progress { width: 82%; max-width: 460px; text-align: center; padding: 1rem; }
+  #canvasBox .gp-bar { height: 12px; width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  #canvasBox .gp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 999px; transition: width 0.3s ease; }
+  #canvasBox .gp-pct { margin-top: 1rem; font-size: 1.9rem; font-weight: 700; color: var(--accent); letter-spacing: 0.02em; }
+  #canvasBox .gp-label { margin-top: 0.25rem; color: var(--muted); font-size: 0.88rem; }
   .actions { display: flex; gap: 0.7rem; margin-top: 1.1rem; flex-wrap: wrap; }
   .hint { color: var(--muted); font-size: 0.85rem; margin-top: 0.9rem; }
   footer {
@@ -288,6 +293,78 @@
     statusEl.className = 'status' + (kind ? ' ' + kind : '');
   }
 
+  // ---- progress UI (percentage) ----
+  var progressTimer = null;
+  var progressValue = 0;
+
+  function renderProgress() {
+    canvasBox.innerHTML =
+      '<div class="gen-progress">' +
+        '<div class="gp-bar"><div class="gp-fill" id="gpFill"></div></div>' +
+        '<div class="gp-pct" id="gpPct">0%</div>' +
+        '<div class="gp-label" id="gpLabel"></div>' +
+      '</div>';
+  }
+
+  function setProgress(pct, label) {
+    pct = Math.max(0, Math.min(100, pct));
+    var fill = document.getElementById('gpFill');
+    var pctEl = document.getElementById('gpPct');
+    var labelEl = document.getElementById('gpLabel');
+    if (fill) fill.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+    if (labelEl && label) labelEl.textContent = label;
+  }
+
+  function startProgress(label) {
+    progressValue = 0;
+    renderProgress();
+    setProgress(0, label);
+    var start = Date.now();
+    clearInterval(progressTimer);
+    progressTimer = setInterval(function () {
+      var t = (Date.now() - start) / 1000;
+      var target = 92 * (1 - Math.exp(-t / 10)); // ease towards 92% while we wait
+      if (target > progressValue) {
+        progressValue += Math.min(target - progressValue, 1.2);
+        setProgress(progressValue, label);
+      }
+    }, 200);
+  }
+
+  function bumpProgress(real) {
+    if (real > progressValue) { progressValue = real; setProgress(real); }
+  }
+
+  function stopProgress() {
+    clearInterval(progressTimer);
+    progressTimer = null;
+  }
+
+  function finishProgress() {
+    stopProgress();
+    progressValue = 100;
+    setProgress(100);
+  }
+
+  // Fetch the cloud image as a blob so we can report real download %.
+  function loadImageBlob(url, onProgress) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'blob';
+      xhr.onprogress = function (e) {
+        if (e.lengthComputable && e.total) onProgress((e.loaded / e.total) * 100);
+      };
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+        else reject(new Error('Image failed (' + xhr.status + ')'));
+      };
+      xhr.onerror = function () { reject(new Error('Network error while fetching the image.')); };
+      xhr.send();
+    });
+  }
+
   generateBtn.addEventListener('click', generate);
 
 // Try the user's OWN PC first: Stable Diffusion WebUI/Forge on
@@ -347,29 +424,49 @@ async function generate() {
     return;
   }
 
+  if (currentUrl && currentUrl.indexOf('blob:') === 0) {
+    try { URL.revokeObjectURL(currentUrl); } catch (e) {}
+  }
+
   generateBtn.disabled = true;
   generateBtn.textContent = '✦ Painting your poem…';
   setStatus('Working…');
+  downloadRow.style.display = 'none';
+
+  startProgress('Looking for your local engine…');
 
   try {
-    setStatus('Looking for your local engine…');
     var result = await tryLocalEngine(poem, activeStyle);
-    if (!result) {
-      result = await fetchCloud(poem, activeStyle);
-    }
 
-    currentUrl = result.url;
-    canvasBox.innerHTML = '<img src="' + result.url + '" alt="Your illustration">';
-    downloadRow.style.display = 'flex';
-
-    if (result.provider === 'local') {
+    if (result) {
+      finishProgress();
+      currentUrl = result.url;
+      canvasBox.innerHTML = '<img src="' + result.url + '" alt="Your illustration">';
       engineHint.textContent = 'Generated on YOUR local Stable Diffusion (own GPU, free). Run WebUI/Forge with --api and --cors-allow-origins=https://' + (location.hostname || 'your domain') + ' to keep using it.';
       setStatus('✅ Done. (local engine)', 'ok');
     } else {
+      var cloud = fetchCloud(poem, activeStyle);
+      setProgress(progressValue, 'Generating with cloud diffusion…');
+
+      var imageSrc = cloud.url;
+      try {
+        var blob = await loadImageBlob(cloud.url, bumpProgress);
+        imageSrc = URL.createObjectURL(blob);
+      } catch (e) {
+        // couldn't stream it — let the <img> load the URL directly
+      }
+
+      finishProgress();
+      currentUrl = imageSrc;
+      canvasBox.innerHTML = '<img src="' + imageSrc + '" alt="Your illustration">';
       engineHint.textContent = 'Cloud diffusion (Pollinations, Stable Diffusion) — can take a few extra seconds. Turn on your local SD for instant free results.';
       setStatus('✅ Done. (cloud diffusion)', 'ok');
     }
+
+    downloadRow.style.display = 'flex';
   } catch (err) {
+    stopProgress();
+    canvasBox.innerHTML = '<div class="empty"><i>🖼</i><div>Your illustration will appear here.<br>No account needed — it just works.</div></div>';
     setStatus('❌ ' + err.message, 'err');
   } finally {
     generateBtn.disabled = false;

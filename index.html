@@ -2222,7 +2222,7 @@ gap: 80px;
             </div>
         </div>
         <div class="footer-bottom">
-            <p style="margin-top:6px;">&copy; 2026 Volant Foundry. All Rights Reserved.</p>
+            <p style="margin-top:6px;">&copy; <span id="year"></span> Volant Foundry. All Rights Reserved.</p>
         </div>
     </div>
 </footer>
@@ -2348,6 +2348,10 @@ gap: 80px;
     document.getElementById('joinFormMobile').addEventListener('submit', e => { e.preventDefault(); handleJoin(document.getElementById('joinEmailMobile')); });
     document.getElementById('joinEmail').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('joinForm').dispatchEvent(new Event('submit')); });
     document.getElementById('joinEmailMobile').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('joinFormMobile').dispatchEvent(new Event('submit')); });
+</script>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>

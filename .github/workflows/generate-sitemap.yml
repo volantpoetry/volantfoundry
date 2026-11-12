@@ -72,5 +72,5 @@ jobs:
 
       - name: 📊 Summary
         run: |
-          echo "✅ Sitemap: https://volantfoundry.vercel.app/sitemap.xml"
-          echo "✅ Robots:  https://volantfoundry.vercel.app/robots.txt"
+          echo "✅ Sitemap: https://volantapex.vercel.app/sitemap.xml"
+          echo "✅ Robots:  https://volantapex.vercel.app/robots.txt"

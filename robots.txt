@@ -1,4 +1,4 @@
-# Robots.txt for Volant Foundry
+# Robots.txt for Volant Apex
 User-agent: *
 Allow: /
 
@@ -14,4 +14,4 @@ Disallow: /node_modules/
 # Block images
 Disallow: /images/
 
-Sitemap: https://volantfoundry.vercel.app/sitemap.xml
+Sitemap: https://volantapex.vercel.app/sitemap.xml

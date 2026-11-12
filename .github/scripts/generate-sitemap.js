@@ -1,12 +1,12 @@
 /**
- * Auto Sitemap Generator for Volant Foundry (single-page)
- * ONLY includes URLs from volantfoundry.vercel.app
+ * Auto Sitemap Generator for Volant Apex (single-page)
+ * ONLY includes URLs from volantapex.vercel.app
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const domain = 'https://volantfoundry.vercel.app';
+const domain = 'https://volantapex.vercel.app';
 const publicFolder = './';
 
 // Single static page
@@ -51,7 +51,7 @@ ${urls.map(u => `
 }
 
 function generateRobotsTxt() {
-  const robots = `# Robots.txt for Volant Foundry
+  const robots = `# Robots.txt for Volant Apex
 User-agent: *
 Allow: /
 
@@ -75,7 +75,7 @@ Sitemap: ${domain}/sitemap.xml`;
 
 async function generateSitemap() {
   try {
-    console.log("🧠 Generating SEO sitemap for Volant Foundry...");
+    console.log("🧠 Generating SEO sitemap for Volant Apex...");
     console.log(`📁 Domain: ${domain}`);
 
     const staticResults = [];
